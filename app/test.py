@@ -18,8 +18,16 @@ with st.sidebar:
     st.info('This application is originally developed by the deep learning model.')
 
 st.title('LipReading App')
-# Generating a list of options or videos
-clips_dir = os.path.join('test', 'p15', 'clips')
+
+base_dir = 'test'
+
+subdirs = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
+
+selected_subdir = st.selectbox('Choose subdirectory from directory test', subdirs)
+
+# Generate the clips directory path based on the selected subdirectory
+clips_dir = os.path.join(base_dir, selected_subdir, 'clips')
+
 options = os.listdir(clips_dir)
 selected_video = st.selectbox('Choose video', options)
 
@@ -56,3 +64,6 @@ if options:
               
         converted_prediction = tf.strings.reduce_join(num_to_char(decoder)).numpy().decode('utf-8')
         st.text(converted_prediction)
+        
+        st.info('This is the output of the deep learning model as tokens')
+        st.text(np.array(annotations))
