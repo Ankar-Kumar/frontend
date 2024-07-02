@@ -16,6 +16,8 @@ num_to_char = tf.keras.layers.StringLookup(
     vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True
 )
 
+
+# Load Video Function with Additional Debug Statements
 def load_video(path: str) -> np.ndarray:
     cap = cv2.VideoCapture(path)
     frames = []
@@ -63,6 +65,9 @@ def load_video(path: str) -> np.ndarray:
         frames.append(lip_window)
 
     cap.release()
+
+    if len(frames) == 0:
+        return np.zeros((0, target_height, target_width, 1))
 
     frames = np.array(frames)
     mean = np.mean(frames)
