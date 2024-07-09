@@ -78,16 +78,37 @@ def load_video(path: str) -> np.ndarray:
     return normalized_frames
 
 def load_alignments(path: str) -> List[int]:
-    with open(path, 'r',encoding='utf-8') as f:
-        lines = f.readlines()
-    tokens = []
-    for line in lines:
-        line = line.split()
-        for word in line:
-            for char in word:
-                tokens.extend(char)
-            tokens.extend(' ')
-    return char_to_num(tokens)[:-1]
+    try:
+        if not os.path.exists(path) or os.path.getsize(path) == 0:
+            return char_to_num([" "])[:-1]  # Return an empty list if the file does not exist or is empty
+
+        with open(path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        tokens = []
+        for line in lines:
+            line = line.split()
+            for word in line:
+                for char in word:
+                    tokens.extend(char)
+                tokens.extend(' ')
+        return char_to_num(tokens)[:-1]
+    except Exception as e:
+        print(f"Error loading alignments from {path}: {e}")
+        return char_to_num([" "])[:-1]  # Return an empty list in case of any error
+
+
+# def load_alignments(path: str) -> List[int]:
+#     with open(path, 'r',encoding='utf-8') as f:
+#         lines = f.readlines()
+#     tokens = []
+#     for line in lines:
+#         line = line.split()
+#         for word in line:
+#             for char in word:
+#                 tokens.extend(char)
+#             tokens.extend(' ')
+#     return char_to_num(tokens)[:-1]
 
 def load_data(path: tf.Tensor): 
     
@@ -104,7 +125,11 @@ def load_data(path: tf.Tensor):
 
     frames = load_video(video_path) 
     alignments = load_alignments(alignment_path)
-    
+    try:
+        alignments = load_alignments(alignment_path)
+    except FileNotFoundError:
+        print(f"Alignment file not found: {alignment_path}")
+        alignments = char_to_num([" "])[:-1]
     return frames, alignments
 
 def mappable_function(path: str) -> List[tf.Tensor]:
